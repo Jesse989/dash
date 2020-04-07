@@ -1,18 +1,22 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import * as am4core from "@amcharts/amcharts4/core";
 import * as am4charts from "@amcharts/amcharts4/charts";
 import am4themes_animated from "@amcharts/amcharts4/themes/animated";
+import Papa from 'papaparse'
+import DataAPI from './DataAPI'
 
 am4core.useTheme(am4themes_animated);
+export interface Props { data: [] }
 
-class App extends Component {
+
+class SampleChart extends Component <Props, {}> {
   chart: am4charts.XYChart | undefined;
   
   componentDidMount() {
+    const newData = this.props.data
+    console.log(newData)
     let chart = am4core.create("chartdiv", am4charts.XYChart);
-
     chart.paddingRight = 20;
 
     let data = [];
@@ -61,4 +65,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default SampleChart;

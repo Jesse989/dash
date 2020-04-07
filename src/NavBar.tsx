@@ -8,7 +8,7 @@ import {
   NavDropdown,
 } from "react-bootstrap";
 
-function Header() {
+function NavBar() {
   return (
     <Navbar bg="light" expand="lg">
       <Navbar.Brand href="#home">Visualizing COVID-19</Navbar.Brand>
@@ -38,4 +38,4 @@ function Header() {
   );
 }
 
-export default Header;
+export default NavBar;
