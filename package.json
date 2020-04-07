@@ -37,6 +37,8 @@
     ]
   },
   "devDependencies": {
-    "@amcharts/amcharts4": "^4.9.13"
+    "@amcharts/amcharts4": "^4.9.13",
+    "bootstrap": "^4.4.1",
+    "react-bootstrap": "^1.0.0"
   }
 }
