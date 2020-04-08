@@ -49,7 +49,7 @@ class RaceChart extends Component<Props, {}> {
     label.y = am4core.percent(95);
     label.horizontalCenter = "right";
     label.verticalCenter = "middle";
-    label.dx = -15;
+    label.dx = -10;
     label.fontSize = 50;
 
     let playButton = chart.plotContainer.createChild(am4core.PlayButton);
@@ -125,6 +125,19 @@ class RaceChart extends Component<Props, {}> {
       }
     }
 
+    function getPercentile(cases: stateDataPoint[]) {
+        let max = 0
+        let results = []
+        for (let row of cases) {
+          if (row.cases > max) {
+              max = row.cases
+          }
+          results.push(row.cases)
+        }
+        const med = results.sort()[Math.floor(results.length/2)]
+        return med
+    }
+
     function nextDay() {
       // increment day
       day = moment(day).add(1, 'days');
@@ -132,8 +145,13 @@ class RaceChart extends Component<Props, {}> {
       if (day > endingDay) {
         day = startingDay;
       }
-
+      // find mean
+      
       let newData = allData[day.format('MM-DD-YYYY').toString()];
+      let percentile = getPercentile(newData)
+
+      
+
       label.text = day.format('MMM Do').toString();
 
       if (!newData) return;
@@ -141,7 +159,7 @@ class RaceChart extends Component<Props, {}> {
       for (var i = 0; i < chart.data.length; i++) {
         
         chart.data[i].cases = newData[i].cases;
-        if (chart.data[i].cases > 0) {
+        if (chart.data[i].cases > percentile) {
           itemsWithNonZero++;
         }
       }
