@@ -1,27 +1,46 @@
 import React, { Component } from "react";
-import SampleChart from "./SampleChart";
 import DataAPI from "./DataAPI";
 import { Spinner } from "react-bootstrap";
-import RaceChart from './RaceChart'
+import RaceChart, { stateDataDay } from './RaceChart'
+import moment, { Moment } from 'moment'
 
 interface MyState {
     loading: boolean,
-    data: []
+    data: stateDataDay
 }
 class DataParent extends Component <{}, MyState> {
     state: MyState = {
         loading: true,
-        data: []
+        data: {}
     }
 
-  componentWillMount() {
-    let url =
-      "https://raw.githubusercontent.com/midas-network/COVID-19/master/data/cases/united%20states%20of%20america/nytimes_covid19_data/20200406_us-counties.csv";
-    let api = new DataAPI(url);
-    api.getData((res: { data: any; }) => {
-        this.setState({ loading: false, data: res.data })
+  componentDidMount() {
+    let startDate = moment('01-22-2020', 'MM-DD-YYYY')
+    let endDate = moment('04-06-2020', 'MM-DD-YYYY')
+    let dates = getDates(startDate, endDate)
+    let urls = []
+    for (let date of dates) {
+        urls.push(`https://raw.githubusercontent.com/GitHub-ccd/COVID19-USA-Flatiron/master/Data/nssac-ncov-data-country-state/nssac-ncov-sd-${date}.csv`)
+    }
+ 
+    let api = new DataAPI(urls);
+
+    api.fetchCsvFiles((csvs) => {
+        // console.log(`fetched CSV's: ${csvs.length}/${urls.length}`)
+        const complete = csvs.length == urls.length
+        if (complete) {
+            api.parseCsv((data) => {
+                // console.log(`parsed CSV's: ${data.length}/${urls.length}`)
+                const complete = data.length == urls.length
+                if (complete) {
+                    api.formatCsv(dates, (formattedData) => {
+                        this.setState({ loading: false, data: formattedData })
+                        console.log(formattedData)
+                    })
+                }
+            })
+        }
     })
-    
   }
 
   render() {
@@ -35,3 +54,15 @@ class DataParent extends Component <{}, MyState> {
 }
 
 export default DataParent;
+
+
+function getDates(startDate: Moment, stopDate: Moment) {
+    var dateArray = [];
+    var currentDate = moment(startDate);
+    var stopDate = moment(stopDate);
+    while (currentDate <= stopDate) {
+        dateArray.push( moment(currentDate).format('MM-DD-YYYY') )
+        currentDate = moment(currentDate).add(1, 'days');
+    }
+    return dateArray;
+}

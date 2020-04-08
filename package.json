@@ -40,7 +40,9 @@
   "devDependencies": {
     "@amcharts/amcharts4": "^4.9.13",
     "@types/react-bootstrap": "^0.32.20",
+    "axios": "^0.19.2",
     "bootstrap": "^4.4.1",
+    "moment": "^2.24.0",
     "papaparse": "^5.2.0",
     "raw-loader": "^4.0.0",
     "react-bootstrap": "^1.0.0"

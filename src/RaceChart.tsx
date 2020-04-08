@@ -2,12 +2,32 @@ import React, { Component } from "react";
 import * as am4core from "@amcharts/amcharts4/core";
 import * as am4charts from "@amcharts/amcharts4/charts";
 import am4themes_animated from "@amcharts/amcharts4/themes/animated";
+import moment from 'moment'
 import Papa from "papaparse";
 import DataAPI from "./DataAPI";
 
 am4core.useTheme(am4themes_animated);
+
+interface dataYear {
+    [prop: string]: Array<dataPoints>;
+}
+
+interface dataPoints {
+    network: string,
+    MAU: number
+}
+
+export interface stateDataDay {
+    [prop: string]: Array<stateDataPoint>
+}
+
+export interface stateDataPoint {
+    state: string,
+    cases: number
+}
+
 export interface Props {
-  data: [];
+  data: stateDataDay;
 }
 
 class RaceChart extends Component<Props, {}> {
@@ -45,11 +65,11 @@ class RaceChart extends Component<Props, {}> {
       }
     });
 
-    let stepDuration = 4000;
+    let stepDuration = 2000;
 
     let categoryAxis = chart.yAxes.push(new am4charts.CategoryAxis());
     categoryAxis.renderer.grid.template.location = 0;
-    categoryAxis.dataFields.category = "network";
+    categoryAxis.dataFields.category = "state";
     categoryAxis.renderer.minGridDistance = 1;
     categoryAxis.renderer.inversed = true;
     categoryAxis.renderer.grid.template.disabled = true;
@@ -61,8 +81,8 @@ class RaceChart extends Component<Props, {}> {
     valueAxis.extraMax = 0.1;
 
     let series = chart.series.push(new am4charts.ColumnSeries());
-    series.dataFields.categoryY = "network";
-    series.dataFields.valueX = "MAU";
+    series.dataFields.categoryY = "state";
+    series.dataFields.valueX = "cases";
     series.tooltipText = "{valueX.value}";
     series.columns.template.strokeOpacity = 0;
     series.columns.template.column.cornerRadiusBottomRight = 5;
@@ -75,7 +95,7 @@ class RaceChart extends Component<Props, {}> {
     labelBullet.label.text =
       "{values.valueX.workingValue.formatNumber('#.0as')}";
     labelBullet.label.textAlign = "end";
-    labelBullet.label.dx = -10;
+    labelBullet.label.dx = -20;
 
     chart.zoomOutButton.disabled = true;
 
@@ -85,16 +105,18 @@ class RaceChart extends Component<Props, {}> {
         return chart.colors.getIndex(target.dataItem.index);
     });
 
-    let year = 2003;
-    label.text = year.toString();
+    const startingDay = moment('01-22-2020', 'MM-DD-YYYY')
+    const endingDay = moment('04-06-2020', 'MM-DD-YYYY')
+    let day = startingDay;
+    label.text = day.format('MM-DD-YYYY').toString();
 
     let interval: NodeJS.Timeout;
 
     function play() {
       interval = setInterval(function () {
-        nextYear();
+        nextDay();
       }, stepDuration);
-      nextYear();
+      nextDay();
     }
 
     function stop() {
@@ -103,23 +125,28 @@ class RaceChart extends Component<Props, {}> {
       }
     }
 
-    function nextYear() {
-      year++;
+    function nextDay() {
+      // increment day
+      day = moment(day).add(1, 'days');
 
-      if (year > 2018) {
-        year = 2003;
+      if (day > endingDay) {
+        day = startingDay;
       }
 
-      let newData = allData[year];
+      let newData = allData[day.format('MM-DD-YYYY').toString()];
+      label.text = day.format('MM-DD-YYYY').toString();
+
+      if (!newData) return;
       let itemsWithNonZero = 0;
       for (var i = 0; i < chart.data.length; i++) {
-        chart.data[i].MAU = newData[i].MAU;
-        if (chart.data[i].MAU > 0) {
+        
+        chart.data[i].cases = newData[i].cases;
+        if (chart.data[i].cases > 0) {
           itemsWithNonZero++;
         }
       }
 
-      if (year == 2003) {
+      if (day == startingDay) {
         series.interpolationDuration = stepDuration / 4;
         valueAxis.rangeChangeDuration = stepDuration / 4;
       } else {
@@ -128,7 +155,6 @@ class RaceChart extends Component<Props, {}> {
       }
 
       chart.invalidateRawData();
-      label.text = year.toString();
 
       categoryAxis.zoom({
         start: 0,
@@ -138,17 +164,8 @@ class RaceChart extends Component<Props, {}> {
 
     categoryAxis.sortBySeries = series;
 
-
-    interface dataYear {
-        [prop: string]: Array<dataPoints>;
-    }
-
-    interface dataPoints {
-        network: string,
-        MAU: number
-    }
-
-    let allData: dataYear = {
+    let allData: stateDataDay = this.props.data
+    let oldData: dataYear = {
       "2003": [
         {
           network: "Facebook",
@@ -1400,7 +1417,7 @@ class RaceChart extends Component<Props, {}> {
       ],
     };
 
-    chart.data = JSON.parse(JSON.stringify(allData[year]));
+    chart.data = JSON.parse(JSON.stringify(allData[day.format('MM-DD-YYYY').toString()]));
     categoryAxis.zoom({ start: 0, end: 1 / chart.data.length });
 
     series.events.on("inited", function () {
