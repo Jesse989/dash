@@ -1,8 +1,16 @@
 // fetch data
-import Papa, { ParseResult } from "papaparse";
+import Papa from "papaparse";
 import axios from "axios";
-import { checkBoolean } from "@amcharts/amcharts4/core";
 import moment from "moment";
+
+export interface stateDataDay {
+  [prop: string]: Array<stateDataPoint>;
+}
+
+export interface stateDataPoint {
+  state: string;
+  cases: number;
+}
 
 export default class DataAPI {
   urls: Array<string>;
@@ -122,7 +130,7 @@ export default class DataAPI {
         let result: stateDataPoint = { state: state, cases: 0 };
         if (
           this.formattedCsv[date] &&
-          this.formattedCsv[date].filter((e) => e.state == state).length == 0
+          this.formattedCsv[date].filter((e) => e.state === state).length === 0
         ) {
           this.formattedCsv[date].push(result);
         } else {
@@ -135,11 +143,11 @@ export default class DataAPI {
     // now do the rest of the days:
     for (let chunk of this.parsedCSV) {
       for (let row of chunk) {
-        const date = moment(row["Last Update"]).format("MM-DD-YYYY");
+        const date = moment(row["Last Update"], 'YYYY-MM-DD hh:mm:ss').format("MM-DD-YYYY");
         const state = row.name;
         const cases = row.Confirmed;
         if (this.formattedCsv[date]) {
-          this.formattedCsv[date].filter((e) => e.state == state).map((e) => e.cases = cases);
+          this.formattedCsv[date].filter((e) => e.state === state).map((e) => e.cases = cases);
   
         }
       }
@@ -152,9 +160,9 @@ export default class DataAPI {
         for (let row of this.formattedCsv[todayDate]) {
             let state = row.state
             if (this.formattedCsv[tomorrowDate] && this.formattedCsv[tomorrowDate].length > 0) {
-                let tomorrowRow = this.formattedCsv[tomorrowDate].filter((e) => e.state == state)[0]
+                let tomorrowRow = this.formattedCsv[tomorrowDate].filter((e) => e.state === state)[0]
                 if (tomorrowRow && row.cases > tomorrowRow.cases) {
-                    this.formattedCsv[tomorrowDate].filter((e) => e.state == state).map((e) => e.cases = row.cases)
+                    this.formattedCsv[tomorrowDate].filter((e) => e.state === state).map((e) => e.cases = row.cases)
                 }
             }
 
@@ -165,11 +173,4 @@ export default class DataAPI {
   }
 }
 
-interface stateDataDay {
-  [prop: string]: Array<stateDataPoint>;
-}
 
-interface stateDataPoint {
-  state: string;
-  cases: number;
-}
