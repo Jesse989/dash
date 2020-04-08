@@ -36,7 +36,7 @@ class RaceChart extends Component<Props, {}> {
   componentDidMount() {
     let chart = am4core.create("chartdiv", am4charts.XYChart);
 
-    chart.padding(40, 40, 40, 40);
+    chart.padding(40, 40, 10, 40);
 
     chart.numberFormatter.bigNumberPrefixes = [
       { number: 1e3, suffix: "K" },
@@ -108,7 +108,7 @@ class RaceChart extends Component<Props, {}> {
     const startingDay = moment('01-22-2020', 'MM-DD-YYYY')
     const endingDay = moment('04-06-2020', 'MM-DD-YYYY')
     let day = startingDay;
-    label.text = day.format('MM-DD-YYYY').toString();
+    label.text = day.format('MMM Do').toString();
 
     let interval: NodeJS.Timeout;
 
@@ -134,7 +134,7 @@ class RaceChart extends Component<Props, {}> {
       }
 
       let newData = allData[day.format('MM-DD-YYYY').toString()];
-      label.text = day.format('MM-DD-YYYY').toString();
+      label.text = day.format('MMM Do').toString();
 
       if (!newData) return;
       let itemsWithNonZero = 0;

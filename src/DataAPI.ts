@@ -116,7 +116,7 @@ export default class DataAPI {
     //      while also keeping only the two values we need:
     //      state and cases
     //
-
+    
     for (let state of this.states) {
       for (let date of dates) {
         let result: stateDataPoint = { state: state, cases: 0 };
@@ -143,6 +143,22 @@ export default class DataAPI {
   
         }
       }
+    }
+
+    // now interpolate values
+    for (let date of dates) {
+        let todayDate = moment(date).format('MM-DD-YYYY')
+        let tomorrowDate = moment(date).add(1, 'days').format('MM-DD-YYYY')
+        for (let row of this.formattedCsv[todayDate]) {
+            let state = row.state
+            if (this.formattedCsv[tomorrowDate] && this.formattedCsv[tomorrowDate].length > 0) {
+                let tomorrowRow = this.formattedCsv[tomorrowDate].filter((e) => e.state == state)[0]
+                if (tomorrowRow && row.cases > tomorrowRow.cases) {
+                    this.formattedCsv[tomorrowDate].filter((e) => e.state == state).map((e) => e.cases = row.cases)
+                }
+            }
+
+        }
     }
 
     onComplete(this.formattedCsv);
