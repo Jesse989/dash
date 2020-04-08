@@ -56,6 +56,7 @@ class RaceChart extends Component<Props, {}> {
     playButton.x = am4core.percent(97);
     playButton.y = am4core.percent(95);
     playButton.dy = -2;
+    playButton.zIndex = 1000
     playButton.verticalCenter = "middle";
     playButton.events.on("toggled", function (event) {
       if (event.target.isActive) {
@@ -109,6 +110,8 @@ class RaceChart extends Component<Props, {}> {
     const endingDay = moment('04-06-2020', 'MM-DD-YYYY')
     let day = startingDay;
     label.text = day.format('MMM Do').toString();
+    label.zIndex = 100
+
 
     let interval: NodeJS.Timeout;
 
@@ -135,7 +138,8 @@ class RaceChart extends Component<Props, {}> {
           results.push(row.cases)
         }
         const med = results.sort()[Math.floor(results.length/2)]
-        return med
+        const quart = results.sort()[Math.floor(results.length/4)]
+        return quart
     }
 
     function nextDay() {
@@ -1454,7 +1458,7 @@ class RaceChart extends Component<Props, {}> {
   }
 
   render() {
-    return <div id="chartdiv" style={{ width: "100%", height: "500px" }}></div>;
+    return <div id="chartdiv" style={{ width: "100%", height: "80vh" }}></div>;
   }
 }
 
