@@ -139,7 +139,7 @@ class RaceChart extends Component<Props, {}> {
         }
         const med = results.sort()[Math.floor(results.length/2)]
         const quart = results.sort()[Math.floor(results.length/4)]
-        return quart
+        return med
     }
 
     function nextDay() {
